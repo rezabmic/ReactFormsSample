@@ -1,24 +1,50 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import { RnaTranslator } from "./rnaTranslator/rna-translator.service";
 
 function App() {
+  const [state, setState] = useState({
+    mRna: "",
+    proteinString: "",
+    isFormInvalid: false,
+  });
+  const rnaTranslator = new RnaTranslator();
+
+  function handleSubmit(e: any) {
+    e.preventDefault();
+    const proteinString = getProteinString();
+    setState({
+      ...state,
+      proteinString,
+      isFormInvalid: !!state.mRna && !proteinString,
+    });
+  }
+
+  function getProteinString(): string {
+    return rnaTranslator.translateToProteinString(state.mRna) || "";
+  }
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <h1>Translating RNA into Protein</h1>
       </header>
+      <div>
+        <form onSubmit={handleSubmit}>
+          <label>
+            mRna
+            <input
+              type="text"
+              value={state.mRna}
+              onChange={(e) => setState({ ...state, mRna: e.target.value })}
+              name="mRna"
+            />
+          </label>
+          <input type="submit" value="Translate" />
+        </form>
+        <div>Result: {state.proteinString}</div>
+        {state.isFormInvalid && <div className="error">"invalid mRna!"</div>}
+      </div>
     </div>
   );
 }
